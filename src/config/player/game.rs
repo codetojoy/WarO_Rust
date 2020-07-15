@@ -55,15 +55,12 @@ fn get_bids(prize_card: u32, max_card: u32, players: &mut Vec<Player>) -> Vec<Bi
     players.into_iter().map(|p| p.get_bid(prize_card, max_card)).collect()
 }
 
-fn determine_winner<'a>(prize_card: u32, bids: &'a Vec<Bid>) -> &'a Bid<'a> {
-    for bid in bids {
-        let player = bid.bidder;
-        let name = &player.name;
-        let offer = bid.offer;
-        println!("TRACER player: {:?} bids {:?} on {:?} and hand: {:?}",
-            name, offer, prize_card, player.hand.cards);
-    }
-    &bids[0]
+fn determine_winner<'a>(bids: &'a Vec<Bid>) -> &'a Bid<'a> {
+    let winning_bid = bids.into_iter().fold(None, |max, bid| match max {
+        None => Some(bid),
+        Some(y) => Some(if bid.offer > y.offer { bid } else { y }),
+    });
+    winning_bid.unwrap()
 }
 
 fn play_round(table: &mut Table, max_card: u32) {
@@ -71,7 +68,30 @@ fn play_round(table: &mut Table, max_card: u32) {
     let prize_card = table.kitty.cards.pop().unwrap();
     println!("TRACER play_round prize_card: {}", prize_card);
     let bids = get_bids(prize_card, max_card, &mut table.players);
-    let winning_bid = determine_winner(prize_card, &bids);
+
+    for bid in &bids {
+        println!("TRACER {}", bid);
+        /*
+        let player = bid.bidder;
+        let name = &player.name;
+        let offer = bid.offer;
+        println!("TRACER player: {:?} bids {:?} on {:?} and hand: {:?}",
+            name, offer, prize_card, player.hand.cards);
+            */
+    }
+
+    let winning_bid = determine_winner(&bids);
+    let winner_name = &winning_bid.bidder.name;
+
+    /*
+    for mut player in players {
+        if &*player.name == &*winner_name {
+            player.wins_round(prize_card);
+        } else {
+            player.loses_round();
+        }
+    }
+    */
 }
 
 fn play_game(config: &Config, table: &mut Table) {
@@ -98,6 +118,23 @@ pub fn play_tourney(config: &Config, table: &mut Table) {
 
 mod tests {
     use super::*;
+
+	#[test]
+	fn test_determine_winner_basic() {
+        let prize_card = 18;
+        let p1 = Player{name: String::from("mozart"), .. Player::new()};
+        let p2 = Player{name: String::from("beethoven"), .. Player::new()};
+        let p3 = Player{name: String::from("liszt"), .. Player::new()};
+        let bid1 = Bid{bidder: &p1, offer: 10, prize_card: prize_card};
+        let bid2 = Bid{bidder: &p2, offer: 14, prize_card: prize_card};
+        let bid3 = Bid{bidder: &p3, offer: 7, prize_card: prize_card};
+        let bids = vec![bid1, bid2, bid3];
+
+        // test
+        let result = determine_winner(&bids);
+
+		assert_eq!(result.bidder.name, "beethoven");
+	}
 
 	#[test]
 	fn test_build_deck_basic() {
