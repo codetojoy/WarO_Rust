@@ -64,20 +64,12 @@ fn determine_winner<'a>(bids: &'a Vec<Bid>) -> &'a Bid<'a> {
 }
 
 fn play_round(table: &mut Table, max_card: u32) {
-    println!("TRACER play_round");
     let prize_card = table.kitty.cards.pop().unwrap();
-    println!("TRACER play_round prize_card: {}", prize_card);
+    println!("\nTRACER play_round prize_card: {}", prize_card);
     let bids = get_bids(prize_card, max_card, &mut table.players);
 
     for bid in &bids {
         println!("TRACER {}", bid);
-        /*
-        let player = bid.bidder;
-        let name = &player.name;
-        let offer = bid.offer;
-        println!("TRACER player: {:?} bids {:?} on {:?} and hand: {:?}",
-            name, offer, prize_card, player.hand.cards);
-            */
     }
 
     let winning_bid = determine_winner(&bids);
@@ -97,9 +89,9 @@ fn play_round(table: &mut Table, max_card: u32) {
 fn play_game(config: &Config, table: &mut Table) {
     deal_to_table(config, table);
 
-    println!("TRACER play_game kitty: {:?}", table.kitty);
+    println!("TRACER play_game kitty: {}", table.kitty);
     for p in &table.players {
-        println!("TRACER play_game {} : {:?}", p.name, p.hand);
+        println!("TRACER play_game {}", p);
     }
     let num_rounds = config.num_cards_per_hand;
     for round_index in 1..(num_rounds+1) {
@@ -110,7 +102,6 @@ fn play_game(config: &Config, table: &mut Table) {
 }
 
 pub fn play_tourney(config: &Config, table: &mut Table) {
-    println!("TRACER hello from play_tourney");
     for game_index in 0..config.num_games {
         play_game(config, table);
     }
