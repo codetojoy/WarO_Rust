@@ -63,7 +63,7 @@ fn determine_winner<'a>(bids: &'a Vec<Bid>) -> &'a Bid<'a> {
     winning_bid.unwrap()
 }
 
-fn play_round(table: &mut Table, max_card: u32) {
+fn play_round(table: &mut Table, max_card: u32) -> (u32, String) {
     let prize_card = table.kitty.cards.pop().unwrap();
     println!("\nTRACER play_round prize_card: {}", prize_card);
     let bids = get_bids(prize_card, max_card, &mut table.players);
@@ -74,16 +74,19 @@ fn play_round(table: &mut Table, max_card: u32) {
 
     let winning_bid = determine_winner(&bids);
     let winner_name = &winning_bid.bidder.name;
+    (prize_card, String::from(winner_name.clone()))
+}
 
-    /*
-    for mut player in players {
-        if &*player.name == &*winner_name {
+fn update_winner_and_losers(table: &mut Table, prize_card: u32, winner_name: String) {
+    for mut player in &mut table.players {
+        if player.name == winner_name {
+            println!("TRACER {} WINS", winner_name);
             player.wins_round(prize_card);
         } else {
             player.loses_round();
         }
+        println!("TRACER {}", player);
     }
-    */
 }
 
 fn play_game(config: &Config, table: &mut Table) {
@@ -95,7 +98,8 @@ fn play_game(config: &Config, table: &mut Table) {
     }
     let num_rounds = config.num_cards_per_hand;
     for round_index in 1..(num_rounds+1) {
-        play_round(table, config.num_cards);
+        let (prize_card, winner_name) = play_round(table, config.num_cards);
+        update_winner_and_losers(table, prize_card, winner_name);
     }
 
     // println!("TRACER play_game table: {:?}", table);
@@ -165,4 +169,31 @@ mod tests {
             assert_eq!(num_cards_player, num_cards_per_hand);
         }
 	}
+
+	#[test]
+	fn test_get_bids_basic() {
+        let prize_card = 20;
+        let max_card = 20;
+        let hand1 = Hand{cards: vec![10,11,12]};
+        let hand2 = Hand{cards: vec![15,16,17]};
+        let p1 = Player{name: String::from("mozart"), hand: hand1, .. Player::new()};
+        let p2 = Player{name: String::from("beethoven"), hand: hand2, .. Player::new()};
+        let mut players: Vec<Player> = vec![p1, p2];
+
+        // test
+        let bids = get_bids(prize_card, max_card, &mut players);
+
+        assert_eq!(2, bids.len());
+        let bid1 = &bids[0];
+        assert_eq!(10, bid1.offer);
+        assert_eq!(20, bid1.prize_card);
+        assert_eq!("mozart", bid1.bidder.name);
+        assert_eq!(2, bid1.bidder.hand.cards.len());
+        let bid2 = &bids[1];
+        assert_eq!(15, bid2.offer);
+        assert_eq!(20, bid2.prize_card);
+        assert_eq!("beethoven", bid2.bidder.name);
+        assert_eq!(2, bid2.bidder.hand.cards.len());
+    }
+
 }
