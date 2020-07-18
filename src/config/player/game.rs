@@ -77,13 +77,11 @@ fn play_round(table: &mut Table, max_card: u32) -> (u32, String) {
     (prize_card, String::from(winner_name.clone()))
 }
 
-fn update_winner_and_losers(table: &mut Table, prize_card: u32, winner_name: String) {
+fn update_winner(table: &mut Table, prize_card: u32, winner_name: String) {
     for mut player in &mut table.players {
         if player.name == winner_name {
             println!("TRACER {} WINS", winner_name);
             player.wins_round(prize_card);
-        } else {
-            player.loses_round();
         }
         println!("TRACER {}", player);
     }
@@ -99,10 +97,8 @@ fn play_game(config: &Config, table: &mut Table) {
     let num_rounds = config.num_cards_per_hand;
     for round_index in 1..(num_rounds+1) {
         let (prize_card, winner_name) = play_round(table, config.num_cards);
-        update_winner_and_losers(table, prize_card, winner_name);
+        update_winner(table, prize_card, winner_name);
     }
-
-    // println!("TRACER play_game table: {:?}", table);
 }
 
 pub fn play_tourney(config: &Config, table: &mut Table) {
@@ -113,6 +109,8 @@ pub fn play_tourney(config: &Config, table: &mut Table) {
 
 mod tests {
     use super::*;
+
+    // some of these tests are enormous, but make me feel more comfortable with the new language
 
 	#[test]
 	fn test_determine_winner_basic() {
@@ -196,4 +194,51 @@ mod tests {
         assert_eq!(2, bid2.bidder.hand.cards.len());
     }
 
+	#[test]
+	fn test_play_round_basic() {
+        let max_card = 12;
+        let kitty = Hand{cards: vec![10,11,12]};
+
+        let hand1 = Hand{cards: vec![1,2,3]};
+        let hand2 = Hand{cards: vec![4,5,6]};
+        let hand3 = Hand{cards: vec![7,8,9]};
+        let p1 = Player{name: String::from("mozart"), hand: hand1, .. Player::new()};
+        let p2 = Player{name: String::from("beethoven"), hand: hand2, .. Player::new()};
+        let p3 = Player{name: String::from("chopin"), hand: hand3, .. Player::new()};
+        let players: Vec<Player> = vec![p1, p2, p3];
+
+        let mut table = Table{players: players, kitty: kitty, .. Table::new()};
+
+        // test
+        let (prize_card, winner_name) = play_round(&mut table, max_card);
+
+        assert_eq!("chopin", winner_name);
+        assert_eq!(12, prize_card);
+    }
+
+	#[test]
+	fn test_update_winner_basic() {
+        let max_card = 12;
+        let kitty = Hand{cards: vec![10,11,12]};
+
+        let hand1 = Hand{cards: vec![1,2,3]};
+        let hand2 = Hand{cards: vec![4,5,6]};
+        let hand3 = Hand{cards: vec![7,8,9]};
+        let p1 = Player{name: String::from("mozart"), hand: hand1, .. Player::new()};
+        let p2 = Player{name: String::from("beethoven"), hand: hand2, .. Player::new()};
+        let p3 = Player{name: String::from("chopin"), hand: hand3, .. Player::new()};
+        let players: Vec<Player> = vec![p1, p2, p3];
+
+        let mut table = Table{players: players, kitty: kitty, .. Table::new()};
+        let prize_card = 12;
+        let winner_name = String::from("chopin");
+
+        // test
+        update_winner(&mut table, prize_card, winner_name);
+
+        let winner = &table.players[2];
+        assert_eq!(0, winner.player_stats.num_games_won);
+        assert_eq!(1, winner.player_stats.num_rounds_won);
+        assert_eq!(12, winner.player_stats.total_for_game);
+    }
 }

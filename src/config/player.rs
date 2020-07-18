@@ -73,7 +73,6 @@ impl Player {
     }
 
     pub fn wins_round(&mut self, prize_card: u32) { self.player_stats.wins_round(prize_card); }
-    pub fn loses_round(&mut self) { self.player_stats.loses_round(); }
     pub fn wins_game(&mut self) { self.player_stats.wins_game(); }
     pub fn loses_game(&mut self) { self.player_stats.loses_game(); }
 }
@@ -121,10 +120,6 @@ impl PlayerStats {
         self.num_rounds_won += 1;
     }
 
-    fn loses_round(&mut self) {
-        self.total_for_game = 0;
-    }
-
     fn wins_game(&mut self) {
         self.total_for_game = 0;
         self.num_rounds_won = 0;
@@ -139,7 +134,7 @@ impl PlayerStats {
 
 impl fmt::Display for PlayerStats {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({}, {}, {})", self.num_games_won, self.num_rounds_won, self.total_for_game)
+        write!(f, "(g: {}, r: {}, t: {})", self.num_games_won, self.num_rounds_won, self.total_for_game)
     }
 }
 
