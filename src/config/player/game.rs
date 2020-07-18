@@ -299,17 +299,12 @@ mod tests {
 
 	#[test]
 	fn test_update_round_winner_basic() {
-        let kitty = Hand{cards: vec![10,11,12]};
-
-        let hand1 = Hand{cards: vec![1,2,3]};
-        let hand2 = Hand{cards: vec![4,5,6]};
-        let hand3 = Hand{cards: vec![7,8,9]};
-        let p1 = Player{name: String::from("mozart"), hand: hand1, .. Player::new()};
-        let p2 = Player{name: String::from("beethoven"), hand: hand2, .. Player::new()};
-        let p3 = Player{name: String::from("chopin"), hand: hand3, .. Player::new()};
+        let p1 = Player{name: String::from("mozart"), .. Player::new()};
+        let p2 = Player{name: String::from("beethoven"), .. Player::new()};
+        let p3 = Player{name: String::from("chopin"), .. Player::new()};
         let players: Vec<Player> = vec![p1, p2, p3];
 
-        let mut table = Table{players: players, kitty: kitty, .. Table::new()};
+        let mut table = Table{players: players, .. Table::new()};
         let prize_card = 12;
         let winner_name = String::from("chopin");
 
@@ -320,5 +315,51 @@ mod tests {
         assert_eq!(0, winner.player_stats.num_games_won);
         assert_eq!(1, winner.player_stats.num_rounds_won);
         assert_eq!(12, winner.player_stats.total_for_game);
+    }
+
+	#[test]
+	fn test_update_game_winner_basic() {
+        let p1 = Player{name: String::from("mozart"), .. Player::new()};
+        let p2 = Player{name: String::from("beethoven"), .. Player::new()};
+        let p3 = Player{name: String::from("chopin"), .. Player::new()};
+        let players: Vec<Player> = vec![p1, p2, p3];
+
+        let mut table = Table{players: players, .. Table::new()};
+        let game_winner_name = String::from("chopin");
+
+        // test
+        update_game_winner(&mut table, game_winner_name);
+
+        let winner = &table.players[2];
+        assert_eq!(1, winner.player_stats.num_games_won);
+        assert_eq!(0, winner.player_stats.num_rounds_won);
+        assert_eq!(0, winner.player_stats.total_for_game);
+    }
+
+    // this is crazy! but comforting
+	#[test]
+	fn test_play_game_basic() {
+        let hand1 = Hand{cards: vec![1,4,7]};
+        let hand2 = Hand{cards: vec![2,5,9]};
+        let hand3 = Hand{cards: vec![3,6,8]};
+        let p1 = Player{name: String::from("mozart"), hand: hand1, .. Player::new()};
+        let p2 = Player{name: String::from("beethoven"), hand: hand2, .. Player::new()};
+        let p3 = Player{name: String::from("chopin"), hand: hand3, .. Player::new()};
+        let players: Vec<Player> = vec![p1, p2, p3];
+        let num_players = u32::try_from(players.len()).unwrap();
+
+        const NUM_GAMES: u32 = 1;
+        const NUM_CARDS: u32 = 12;
+        let num_cards_per_hand = NUM_CARDS / (num_players + 1);
+        let config = Config{num_players: num_players, num_games: NUM_GAMES,
+                            num_cards: NUM_CARDS, num_cards_per_hand: num_cards_per_hand};
+
+        let kitty = Hand{cards: vec![10,11,12]};
+        let mut table = Table{players: players, kitty: kitty, .. Table::new()};
+
+        // test
+        let game_winner_name = play_game(&config, &mut table);
+
+        assert_eq!("beethoven", game_winner_name);
     }
 }
