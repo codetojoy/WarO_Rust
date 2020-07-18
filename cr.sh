@@ -5,4 +5,4 @@ do
    echo ""
 done
 
-cargo run
+cargo run config.json

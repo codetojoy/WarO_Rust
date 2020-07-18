@@ -48,11 +48,23 @@ pub struct Player {
 }
 
 impl Player {
+
+    // this is used by tests
+    #[allow(dead_code)]
     pub fn new() -> Player {
         Player {
             name: String::from("unknown"),
             hand: Hand::new(),
             strategy: Strategy{name: String::from("next_card")},
+            player_stats: PlayerStats::new(),
+        }
+    }
+
+    pub fn new_from_json(name: &str, strategy_name: &str) -> Player {
+        Player {
+            name: String::from(name),
+            hand: Hand::new(),
+            strategy: Strategy{name: String::from(strategy_name)},
             player_stats: PlayerStats::new(),
         }
     }

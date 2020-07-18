@@ -1,33 +1,27 @@
 
-use std::convert::TryFrom;
+use std::env;
 
 mod config;
 
-use config::Config;
-use config::player::game::Table;
+use config::build_from_json;
 use config::player::*;
 
-fn main() {
-    // players should go into a config module but not necessarily Config
-    let p1 = Player{name: String::from("mozart"), .. Player::new()};
-    let p2 = Player{name: String::from("beethoven"), .. Player::new()};
-    let p3 = Player{name: String::from("chopin"), .. Player::new()};
-    let players: Vec<Player> = vec![p1, p2, p3];
-    let num_players = u32::try_from(players.len()).unwrap();
-    let mut table = Table{players: players, .. Table::new()};
-
-    const NUM_GAMES: u32 = 1;
-    const NUM_CARDS: u32 = 12;
-    let num_cards_per_hand = NUM_CARDS / (num_players + 1);
-    let config = Config{num_players: num_players, num_games: NUM_GAMES,
-                        num_cards: NUM_CARDS, num_cards_per_hand: num_cards_per_hand};
-
+fn emit_banner() {
     for _i in 1..20 {
         println!("");
     }
     println!("----------------------------------");
+}
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+    let config_file = &args[1];
+    let (mut table, config) = build_from_json(config_file);
+
+    emit_banner();
+
     println!("TRACER config: {:?}", config);
-    println!("TRACER table: {:?}", table);
+    println!("TRACER table: {}", table);
     game::play_tourney(&config, &mut table);
     println!("Ready.");
 }
