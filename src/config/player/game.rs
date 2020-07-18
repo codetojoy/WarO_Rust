@@ -8,6 +8,8 @@ use super::Hand;
 use super::Player;
 use super::super::Config;
 
+pub mod strategy;
+
 #[derive(Debug)]
 pub struct Table {
     pub prize_card: u32,
@@ -120,8 +122,10 @@ fn update_game_winner(table: &mut Table, game_winner_name: String) {
     }
 }
 
-fn play_game(config: &Config, table: &mut Table) -> String {
-    deal_to_table(config, table);
+fn play_game(config: &Config, table: &mut Table, use_dealer: bool) -> String {
+    if use_dealer {
+        deal_to_table(config, table);
+    }
 
     println!("TRACER play_game kitty: {}", table.kitty);
     for p in &table.players {
@@ -146,8 +150,9 @@ fn determine_tourney_winner<'a>(players: &'a Vec<Player>) -> &'a Player {
 }
 
 pub fn play_tourney(config: &Config, table: &mut Table) {
+    let use_dealer = true;
     for _game_index in 0..config.num_games {
-        let game_winner_name = play_game(config, table);
+        let game_winner_name = play_game(config, table, use_dealer);
         println!("TRACER game {}", game_winner_name);
         update_game_winner(table, game_winner_name);
     }
@@ -239,7 +244,7 @@ mod tests {
                             num_cards: NUM_CARDS, num_cards_per_hand: num_cards_per_hand};
 
         // test
-        let result = deal_to_table(&config, &mut table);
+        deal_to_table(&config, &mut table);
 
         let num_cards_kitty = u32::try_from(table.kitty.cards.len()).unwrap();
 		assert_eq!(num_cards_kitty, num_cards_per_hand);
@@ -339,9 +344,9 @@ mod tests {
     // this is crazy! but comforting
 	#[test]
 	fn test_play_game_basic() {
-        let hand1 = Hand{cards: vec![1,4,7]};
+        let hand1 = Hand{cards: vec![3,4,7]};
         let hand2 = Hand{cards: vec![2,5,9]};
-        let hand3 = Hand{cards: vec![3,6,8]};
+        let hand3 = Hand{cards: vec![1,6,8]};
         let p1 = Player{name: String::from("mozart"), hand: hand1, .. Player::new()};
         let p2 = Player{name: String::from("beethoven"), hand: hand2, .. Player::new()};
         let p3 = Player{name: String::from("chopin"), hand: hand3, .. Player::new()};
@@ -356,10 +361,11 @@ mod tests {
 
         let kitty = Hand{cards: vec![10,11,12]};
         let mut table = Table{players: players, kitty: kitty, .. Table::new()};
+        let use_dealer = false;
 
         // test
-        let game_winner_name = play_game(&config, &mut table);
+        let game_winner_name = play_game(&config, &mut table, use_dealer);
 
-        assert_eq!("beethoven", game_winner_name);
+        assert_eq!("mozart", game_winner_name);
     }
 }

@@ -3,6 +3,8 @@ use std::fmt;
 
 pub mod game;
 
+use game::strategy::Strategy;
+
 #[derive(Debug)]
 pub struct Hand {
     pub cards: Vec<u32>,
@@ -34,17 +36,6 @@ impl fmt::Display for Hand {
         s.push_str("]");
 
         write!(f, "{}", s)
-    }
-}
-
-#[derive(Debug)]
-pub struct Strategy {
-    name: String,
-}
-
-impl Strategy {
-    pub fn select_card(&self, _prize_card: u32, hand: &Hand, _max_card: u32) -> u32 {
-        hand.cards[0]
     }
 }
 
