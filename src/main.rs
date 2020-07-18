@@ -1,5 +1,4 @@
 
-// use rand::seq::SliceRandom;
 use std::convert::TryFrom;
 
 mod config;
