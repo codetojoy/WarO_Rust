@@ -1,6 +1,7 @@
 
 use rand::seq::SliceRandom;
 use std::convert::TryFrom;
+use std::fmt;
 
 use super::Bid;
 use super::Hand;
@@ -24,6 +25,20 @@ impl Table {
     }
 }
 
+impl fmt::Display for Table {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut s = String::new();
+
+        s.push_str(&format!("\n\nkitty: {}\n", &self.kitty.to_string()));
+        s.push_str(&format!("prize_card: {}\n", &self.prize_card.to_string()));
+        for player in &self.players {
+            s.push_str(&format!("{}\n", &player.to_string()));
+        }
+
+        write!(f, "{}", s)
+    }
+}
+
 fn build_deck(num_cards: u32) -> Vec<u32> {
     let mut deck: Vec<u32> = (1..num_cards+1).collect();
     let mut rng = rand::thread_rng();
@@ -35,7 +50,7 @@ fn deal_to_table(config: &Config, table: &mut Table) {
     let deck = build_deck(config.num_cards);
     let num_cards_per_hand = usize::try_from(config.num_cards_per_hand).unwrap();
     let hands = deck.chunks(num_cards_per_hand);
-    let num_hands = hands.len();
+    // let num_hands = hands.len();
     let mut index = 0;
     for hand in hands {
         let this_hand = Hand{cards: hand.to_vec()};
@@ -55,12 +70,22 @@ fn get_bids(prize_card: u32, max_card: u32, players: &mut Vec<Player>) -> Vec<Bi
     players.into_iter().map(|p| p.get_bid(prize_card, max_card)).collect()
 }
 
-fn determine_winner<'a>(bids: &'a Vec<Bid>) -> &'a Bid<'a> {
+fn determine_round_winner<'a>(bids: &'a Vec<Bid>) -> &'a Bid<'a> {
     let winning_bid = bids.into_iter().fold(None, |max, bid| match max {
         None => Some(bid),
         Some(y) => Some(if bid.offer > y.offer { bid } else { y }),
     });
     winning_bid.unwrap()
+}
+
+fn update_round_winner(table: &mut Table, prize_card: u32, round_winner_name: String) {
+    for player in &mut table.players {
+        if player.name == round_winner_name {
+            println!("TRACER {} WINS round: ", round_winner_name);
+            player.wins_round(prize_card);
+        }
+        println!("TRACER {}", player);
+    }
 }
 
 fn play_round(table: &mut Table, max_card: u32) -> (u32, String) {
@@ -72,22 +97,32 @@ fn play_round(table: &mut Table, max_card: u32) -> (u32, String) {
         println!("TRACER {}", bid);
     }
 
-    let winning_bid = determine_winner(&bids);
+    let winning_bid = determine_round_winner(&bids);
     let winner_name = &winning_bid.bidder.name;
     (prize_card, String::from(winner_name.clone()))
 }
 
-fn update_winner(table: &mut Table, prize_card: u32, winner_name: String) {
-    for mut player in &mut table.players {
-        if player.name == winner_name {
-            println!("TRACER {} WINS", winner_name);
-            player.wins_round(prize_card);
+fn determine_game_winner<'a>(players: &'a Vec<Player>) -> &'a Player {
+    let game_winner = players.into_iter().fold(None, |max, player| match max {
+        None => Some(player),
+        Some(y) => Some(if player.player_stats.total_for_game > y.player_stats.total_for_game { player } else { y }),
+    });
+    game_winner.unwrap()
+}
+
+fn update_game_winner(table: &mut Table, game_winner_name: String) {
+    for player in &mut table.players {
+        if player.name == game_winner_name {
+            println!("TRACER {} WINS game: ", game_winner_name);
+            player.wins_game();
+        } else {
+            player.loses_game();
         }
         println!("TRACER {}", player);
     }
 }
 
-fn play_game(config: &Config, table: &mut Table) {
+fn play_game(config: &Config, table: &mut Table) -> String {
     deal_to_table(config, table);
 
     println!("TRACER play_game kitty: {}", table.kitty);
@@ -95,16 +130,33 @@ fn play_game(config: &Config, table: &mut Table) {
         println!("TRACER play_game {}", p);
     }
     let num_rounds = config.num_cards_per_hand;
-    for round_index in 1..(num_rounds+1) {
-        let (prize_card, winner_name) = play_round(table, config.num_cards);
-        update_winner(table, prize_card, winner_name);
+    for _round_index in 1..(num_rounds+1) {
+        let (prize_card, round_winner_name) = play_round(table, config.num_cards);
+        update_round_winner(table, prize_card, round_winner_name);
     }
+
+    let game_winner = determine_game_winner(&table.players);
+    game_winner.name.clone()
+}
+
+fn determine_tourney_winner<'a>(players: &'a Vec<Player>) -> &'a Player {
+    let tourney_winner = players.into_iter().fold(None, |max, player| match max {
+        None => Some(player),
+        Some(y) => Some(if player.player_stats.num_games_won > y.player_stats.num_games_won { player } else { y }),
+    });
+    tourney_winner.unwrap()
 }
 
 pub fn play_tourney(config: &Config, table: &mut Table) {
-    for game_index in 0..config.num_games {
-        play_game(config, table);
+    for _game_index in 0..config.num_games {
+        let game_winner_name = play_game(config, table);
+        println!("TRACER game {}", game_winner_name);
+        update_game_winner(table, game_winner_name);
     }
+
+    let tourney_winner = determine_tourney_winner(&table.players);
+    println!("\n\ntourney complete. WINNER: {}", tourney_winner.name);
+    println!("final table: {}", table);
 }
 
 mod tests {
@@ -113,7 +165,7 @@ mod tests {
     // some of these tests are enormous, but make me feel more comfortable with the new language
 
 	#[test]
-	fn test_determine_winner_basic() {
+	fn test_determine_round_winner_basic() {
         let prize_card = 18;
         let p1 = Player{name: String::from("mozart"), .. Player::new()};
         let p2 = Player{name: String::from("beethoven"), .. Player::new()};
@@ -124,7 +176,7 @@ mod tests {
         let bids = vec![bid1, bid2, bid3];
 
         // test
-        let result = determine_winner(&bids);
+        let result = determine_round_winner(&bids);
 
 		assert_eq!(result.bidder.name, "beethoven");
 	}
@@ -217,8 +269,7 @@ mod tests {
     }
 
 	#[test]
-	fn test_update_winner_basic() {
-        let max_card = 12;
+	fn test_update_round_winner_basic() {
         let kitty = Hand{cards: vec![10,11,12]};
 
         let hand1 = Hand{cards: vec![1,2,3]};
@@ -234,7 +285,7 @@ mod tests {
         let winner_name = String::from("chopin");
 
         // test
-        update_winner(&mut table, prize_card, winner_name);
+        update_round_winner(&mut table, prize_card, winner_name);
 
         let winner = &table.players[2];
         assert_eq!(0, winner.player_stats.num_games_won);

@@ -1,5 +1,5 @@
 
-use rand::seq::SliceRandom;
+// use rand::seq::SliceRandom;
 use std::convert::TryFrom;
 
 mod config;
@@ -23,7 +23,7 @@ fn main() {
     let config = Config{num_players: num_players, num_games: NUM_GAMES,
                         num_cards: NUM_CARDS, num_cards_per_hand: num_cards_per_hand};
 
-    for i in 1..20 {
+    for _i in 1..20 {
         println!("");
     }
     println!("----------------------------------");
