@@ -138,6 +138,7 @@ impl fmt::Display for PlayerStats {
     }
 }
 
+#[allow(unused_imports)]
 mod tests {
     use super::*;
 

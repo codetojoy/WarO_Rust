@@ -50,8 +50,8 @@ fn deal_to_table(config: &Config, table: &mut Table) {
     let deck = build_deck(config.num_cards);
     let num_cards_per_hand = usize::try_from(config.num_cards_per_hand).unwrap();
     let hands = deck.chunks(num_cards_per_hand);
-    // let num_hands = hands.len();
     let mut index = 0;
+
     for hand in hands {
         let this_hand = Hand{cards: hand.to_vec()};
         if index == 0 {
@@ -60,10 +60,8 @@ fn deal_to_table(config: &Config, table: &mut Table) {
             let player_index = index - 1;
             table.players[player_index].hand = this_hand;
         }
-        // println!("TRACER hello from deal. hand: {:?}", hand);
         index += 1;
     }
-    // println!("TRACER hello from deal. deck: {:?}", deck);
 }
 
 fn get_bids(prize_card: u32, max_card: u32, players: &mut Vec<Player>) -> Vec<Bid> {
@@ -159,6 +157,7 @@ pub fn play_tourney(config: &Config, table: &mut Table) {
     println!("final table: {}", table);
 }
 
+#[allow(unused_imports)]
 mod tests {
     use super::*;
 
@@ -180,6 +179,36 @@ mod tests {
 
 		assert_eq!(result.bidder.name, "beethoven");
 	}
+
+	#[test]
+	fn test_determine_game_winner_basic() {
+        let p1 = Player{name: String::from("mozart"), .. Player::new()};
+        let mut p2 = Player{name: String::from("beethoven"), .. Player::new()};
+        let p3 = Player{name: String::from("liszt"), .. Player::new()};
+        p2.wins_round(10);
+        let players = vec![p1, p2, p3];
+
+        // test
+        let result = determine_game_winner(&players);
+
+		assert_eq!(result.name, "beethoven");
+	}
+
+	#[test]
+	fn test_determine_tourney_winner_basic() {
+        let p1 = Player{name: String::from("mozart"), .. Player::new()};
+        let mut p2 = Player{name: String::from("beethoven"), .. Player::new()};
+        let mut p3 = Player{name: String::from("liszt"), .. Player::new()};
+        p2.wins_game();
+        p3.wins_game();
+        p3.wins_game();
+        let players = vec![p1, p2, p3];
+
+        // test
+        let result = determine_tourney_winner(&players);
+
+		assert_eq!(result.name, "liszt");
+    }
 
 	#[test]
 	fn test_build_deck_basic() {

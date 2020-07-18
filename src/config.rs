@@ -9,6 +9,7 @@ pub struct Config {
     pub num_cards_per_hand: u32,
 }
 
+#[allow(unused_imports)]
 mod tests {
     use super::*;
 
