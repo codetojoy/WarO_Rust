@@ -153,7 +153,7 @@ pub fn play_tourney(config: &Config, table: &mut Table) {
     let use_dealer = true;
     for _game_index in 0..config.num_games {
         let game_winner_name = play_game(config, table, use_dealer);
-        println!("TRACER game {}", game_winner_name);
+        println!("\n\nTRACER game {}", game_winner_name);
         update_game_winner(table, game_winner_name);
     }
 

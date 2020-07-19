@@ -9,8 +9,11 @@ Usage:
 
 * assumes Rust is installed
 * to compile: `cargo check`
+    - see `cc.sh`
 * to test: `cargo test`
-* to run: `cargo run`
+    - see `ct.sh`
+* to run: `cargo run [json config file]`
+    - see `cr.sh`
 
 Rules:
 ---------

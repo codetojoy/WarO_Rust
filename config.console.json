@@ -1,0 +1,9 @@
+{
+"num_cards": 20,
+"num_games": 1,
+"players": [
+    {"name": "you", "strategy": "console"},
+    {"name": "bach", "strategy": "next_card"},
+    {"name": "shostakovich", "strategy": "next_card"}
+]
+}
