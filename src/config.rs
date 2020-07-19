@@ -19,15 +19,15 @@ pub struct Config {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct JsonConfiguration {
-    pub num_cards: u32,
-    pub num_games: u32,
-    pub players: Vec<JsonPlayer>
+    num_cards: u32,
+    num_games: u32,
+    players: Vec<JsonPlayer>
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct JsonPlayer {
-    pub name: String,
-    pub strategy: String,
+    name: String,
+    strategy: String,
 }
 
 pub fn build_from_json(config_file: &str) -> (Table, Config) {
