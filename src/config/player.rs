@@ -41,10 +41,10 @@ impl fmt::Display for Hand {
 
 #[derive(Debug)]
 pub struct Player {
-    pub name: String,
-    pub hand: Hand,
-    pub strategy: Strategy,
-    pub player_stats: PlayerStats,
+    name: String,
+    hand: Hand,
+    strategy: Strategy,
+    player_stats: PlayerStats,
 }
 
 impl Player {
