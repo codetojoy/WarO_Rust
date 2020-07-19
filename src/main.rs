@@ -3,8 +3,7 @@ use std::env;
 
 mod config;
 
-use config::build_from_json;
-use config::player::*;
+use config::player::game;
 
 fn emit_banner() {
     for _i in 1..20 {
@@ -16,7 +15,7 @@ fn emit_banner() {
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config_file = &args[1];
-    let (mut table, config) = build_from_json(config_file);
+    let (mut table, config) = config::build_from_json(config_file);
 
     emit_banner();
 

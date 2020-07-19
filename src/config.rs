@@ -5,7 +5,7 @@ use std::convert::TryFrom;
 use std::fs;
 
 use player::game::Table;
-use player::*;
+use player::Player;
 
 pub mod player;
 
