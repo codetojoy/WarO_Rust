@@ -65,19 +65,16 @@ fn hybrid_card(prize_card: u32, hand: &Hand, highest_card: u32) -> u32 {
 }
 
 fn nearest_card(prize_card: u32, hand: &Hand, highest_card: u32) -> u32 {
-    let mut result = 0;
-    let mut lowest_distance = highest_card as i32;
-
-    for card in &hand.cards {
-        let diff = *card as i32 - prize_card as i32;
-        let distance = diff.abs();
-        if distance < lowest_distance {
-            result = *card;
-            lowest_distance = distance;
+    let (nearest, _tmp) = hand.cards.iter().fold((0, highest_card), |acc, card| -> (u32, u32) {
+        let (_nearest_card_so_far, nearest_distance_so_far) = acc;
+        let this_distance = (*card as i32 - prize_card as i32).abs() as u32;
+        if this_distance < nearest_distance_so_far  {
+            (*card, this_distance)
+        } else {
+            acc
         }
-    }
-
-    result
+    });
+    nearest
 }
 
 fn next_card(_prize_card: u32, hand: &Hand, _highest_card: u32) -> u32 {
@@ -162,7 +159,18 @@ mod tests {
 	}
 
 	#[test]
-	fn test_nearest_card() {
+	fn test_nearest_card_low() {
+        let prize_card = 1;
+        let hand = Hand{cards: vec![5,6,9,10]};
+        let highest_card = 12;
+        // test
+        let result = nearest_card(prize_card, &hand, highest_card);
+
+		assert_eq!(result, 5);
+	}
+
+	#[test]
+	fn test_nearest_card_middle() {
         let prize_card = 7;
         let hand = Hand{cards: vec![1,6,9,10]};
         let highest_card = 12;
@@ -170,6 +178,17 @@ mod tests {
         let result = nearest_card(prize_card, &hand, highest_card);
 
 		assert_eq!(result, 6);
+	}
+
+	#[test]
+	fn test_nearest_card_high() {
+        let prize_card = 12;
+        let hand = Hand{cards: vec![2,6,9,10]};
+        let highest_card = 12;
+        // test
+        let result = nearest_card(prize_card, &hand, highest_card);
+
+		assert_eq!(result, 10);
 	}
 
 	#[test]
