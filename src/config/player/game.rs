@@ -2,6 +2,7 @@
 use rand::seq::SliceRandom;
 use std::convert::TryFrom;
 use std::fmt;
+use std::ops::Fn;
 
 use super::Bid;
 use super::Hand;
@@ -103,11 +104,7 @@ fn play_round(table: &mut Table, max_card: u32) -> (u32, String) {
 }
 
 fn determine_game_winner<'a>(players: &'a Vec<Player>) -> &'a Player {
-    let game_winner = players.into_iter().fold(None, |max, player| match max {
-        None => Some(player),
-        Some(y) => Some(if player.player_stats.total_for_game > y.player_stats.total_for_game { player } else { y }),
-    });
-    game_winner.unwrap()
+    determine_winner(players, game_selector)
 }
 
 fn update_game_winner(table: &mut Table, game_winner_name: String) {
@@ -142,11 +139,24 @@ fn play_game(config: &Config, table: &mut Table, use_dealer: bool) -> String {
 }
 
 fn determine_tourney_winner<'a>(players: &'a Vec<Player>) -> &'a Player {
-    let tourney_winner = players.into_iter().fold(None, |max, player| match max {
+    determine_winner(players, tourney_selector)
+}
+
+fn determine_winner<'a,P>(players: &'a Vec<Player>, selector: P) -> &'a Player
+    where P: Fn(&'a Player) -> u32 {
+    let winner = players.into_iter().fold(None, |max, player| match max {
         None => Some(player),
-        Some(y) => Some(if player.player_stats.num_games_won > y.player_stats.num_games_won { player } else { y }),
+        Some(y) => Some(if selector(player) > selector(y) { player } else { y }),
     });
-    tourney_winner.unwrap()
+    winner.unwrap()
+}
+
+fn tourney_selector(player: &Player) -> u32 {
+    player.player_stats.num_games_won
+}
+
+fn game_selector(player: &Player) -> u32 {
+    player.player_stats.total_for_game
 }
 
 pub fn play_tourney(config: &Config, table: &mut Table) {
