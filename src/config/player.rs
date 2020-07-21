@@ -40,10 +40,10 @@ impl fmt::Display for Hand {
 }
 
 #[derive(Debug)]
-pub struct Player {
+pub struct Player<'a> {
     name: String,
     hand: Hand,
-    strategy: Strategy,
+    strategy: Strategy<'a>,
     player_stats: PlayerStats,
 }
 
