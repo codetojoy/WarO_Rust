@@ -57,10 +57,10 @@ pub fn build_from_json(config_file: &str) -> (Table, Config) {
 mod tests {
     use super::*;
 
-	#[test]
-	fn test_canary() {
+    #[test]
+    fn test_canary() {
         let a = 5;
         let b = 5;
-		assert_eq!(a, b);
-	}
+        assert_eq!(a, b);
+    }
 }

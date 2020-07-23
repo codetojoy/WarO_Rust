@@ -94,28 +94,28 @@ mod tests {
     use super::*;
     use std::panic;
 
-	#[test]
-	fn test_validate_pick_ok() {
+    #[test]
+    fn test_validate_pick_ok() {
         let pick = "8";
         let hand = Hand{cards: vec![4,2,6,8]};
         // test
         let result = validate_pick(&pick, &hand);
 
-		assert_eq!(result.unwrap(), 8);
-	}
+        assert_eq!(result.unwrap(), 8);
+    }
 
-	#[test]
-	fn test_validate_pick_ok_newline() {
+    #[test]
+    fn test_validate_pick_ok_newline() {
         let pick = "8\n";
         let hand = Hand{cards: vec![4,2,6,8]};
         // test
         let result = validate_pick(&pick, &hand);
 
-		assert_eq!(result.unwrap(), 8);
-	}
+        assert_eq!(result.unwrap(), 8);
+    }
 
-	#[test]
-	fn test_validate_pick_not_legal() {
+    #[test]
+    fn test_validate_pick_not_legal() {
         let pick = "@2";
         let hand = Hand{cards: vec![4,2,6,8]};
         // test
@@ -123,104 +123,104 @@ mod tests {
             validate_pick(&pick, &hand);
         });
 
-		assert!(result.is_err());
-	}
+        assert!(result.is_err());
+    }
 
-	#[test]
-	fn test_validate_pick_not_found() {
+    #[test]
+    fn test_validate_pick_not_found() {
         let pick = "7";
         let hand = Hand{cards: vec![4,2,6,8]};
         // test
         let result = validate_pick(&pick, &hand);
 
-		assert_eq!(false, result.is_some());
-	}
+        assert_eq!(false, result.is_some());
+    }
 
-	#[test]
-	fn test_hybrid_card_high() {
+    #[test]
+    fn test_hybrid_card_high() {
         let prize_card = 10;
         let hand = Hand{cards: vec![4,2,6,8]};
         let highest_card = 12;
         // test
         let result = hybrid_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 8);
-	}
+        assert_eq!(result, 8);
+    }
 
-	#[test]
-	fn test_hybrid_card_low() {
+    #[test]
+    fn test_hybrid_card_low() {
         let prize_card = 1;
         let hand = Hand{cards: vec![4,2,6,8]};
         let highest_card = 12;
         // test
         let result = hybrid_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 2);
-	}
+        assert_eq!(result, 2);
+    }
 
-	#[test]
-	fn test_nearest_card_low() {
+    #[test]
+    fn test_nearest_card_low() {
         let prize_card = 1;
         let hand = Hand{cards: vec![5,6,9,10]};
         let highest_card = 12;
         // test
         let result = nearest_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 5);
-	}
+        assert_eq!(result, 5);
+    }
 
-	#[test]
-	fn test_nearest_card_middle() {
+    #[test]
+    fn test_nearest_card_middle() {
         let prize_card = 7;
         let hand = Hand{cards: vec![1,6,9,10]};
         let highest_card = 12;
         // test
         let result = nearest_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 6);
-	}
+        assert_eq!(result, 6);
+    }
 
-	#[test]
-	fn test_nearest_card_high() {
+    #[test]
+    fn test_nearest_card_high() {
         let prize_card = 12;
         let hand = Hand{cards: vec![2,6,9,10]};
         let highest_card = 12;
         // test
         let result = nearest_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 10);
-	}
+        assert_eq!(result, 10);
+    }
 
-	#[test]
-	fn test_max_card() {
+    #[test]
+    fn test_max_card() {
         let prize_card = 10;
         let hand = Hand{cards: vec![4,2,6,8]};
         let highest_card = 12;
         // test
         let result = max_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 8);
-	}
+        assert_eq!(result, 8);
+    }
 
-	#[test]
-	fn test_min_card() {
+    #[test]
+    fn test_min_card() {
         let prize_card = 10;
         let hand = Hand{cards: vec![4,2,6,8]};
         let highest_card = 12;
         // test
         let result = min_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 2);
-	}
+        assert_eq!(result, 2);
+    }
 
-	#[test]
-	fn test_next_card() {
+    #[test]
+    fn test_next_card() {
         let prize_card = 10;
         let hand = Hand{cards: vec![4,2,6,8]};
         let highest_card = 12;
         // test
         let result = next_card(prize_card, &hand, highest_card);
 
-		assert_eq!(result, 4);
-	}
+        assert_eq!(result, 4);
+    }
 }

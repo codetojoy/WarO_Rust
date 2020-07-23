@@ -178,8 +178,8 @@ mod tests {
 
     // some of these tests are enormous, but make me feel more comfortable with the new language
 
-	#[test]
-	fn test_determine_round_winner_basic() {
+    #[test]
+    fn test_determine_round_winner_basic() {
         let prize_card = 18;
         let p1 = Player{name: String::from("mozart"), .. Player::new()};
         let p2 = Player{name: String::from("beethoven"), .. Player::new()};
@@ -192,11 +192,11 @@ mod tests {
         // test
         let result = determine_round_winner(&bids);
 
-		assert_eq!(result.bidder.name, "beethoven");
-	}
+        assert_eq!(result.bidder.name, "beethoven");
+    }
 
-	#[test]
-	fn test_determine_game_winner_basic() {
+    #[test]
+    fn test_determine_game_winner_basic() {
         let p1 = Player{name: String::from("mozart"), .. Player::new()};
         let mut p2 = Player{name: String::from("beethoven"), .. Player::new()};
         let p3 = Player{name: String::from("liszt"), .. Player::new()};
@@ -206,11 +206,11 @@ mod tests {
         // test
         let result = determine_game_winner(&players);
 
-		assert_eq!(result.name, "beethoven");
-	}
+        assert_eq!(result.name, "beethoven");
+    }
 
-	#[test]
-	fn test_determine_tourney_winner_basic() {
+    #[test]
+    fn test_determine_tourney_winner_basic() {
         let p1 = Player{name: String::from("mozart"), .. Player::new()};
         let mut p2 = Player{name: String::from("beethoven"), .. Player::new()};
         let mut p3 = Player{name: String::from("liszt"), .. Player::new()};
@@ -222,25 +222,25 @@ mod tests {
         // test
         let result = determine_tourney_winner(&players);
 
-		assert_eq!(result.name, "liszt");
+        assert_eq!(result.name, "liszt");
     }
 
-	#[test]
-	fn test_build_deck_basic() {
+    #[test]
+    fn test_build_deck_basic() {
         let num_cards = 5;
 
         // test
         let result = build_deck(num_cards);
 
         let num_cards_result = u32::try_from(result.len()).unwrap();
-		assert_eq!(num_cards_result, num_cards);
+        assert_eq!(num_cards_result, num_cards);
         for i in 1..num_cards+1 {
             assert!(result.iter().any(|&x| x==i));
         }
-	}
+    }
 
-	#[test]
-	fn test_deal_to_table_basic() {
+    #[test]
+    fn test_deal_to_table_basic() {
         let p1 = Player{name: String::from("mozart"), .. Player::new()};
         let p2 = Player{name: String::from("beethoven"), .. Player::new()};
         let players: Vec<Player> = vec![p1, p2];
@@ -257,15 +257,15 @@ mod tests {
         deal_to_table(&config, &mut table);
 
         let num_cards_kitty = u32::try_from(table.kitty.cards.len()).unwrap();
-		assert_eq!(num_cards_kitty, num_cards_per_hand);
+        assert_eq!(num_cards_kitty, num_cards_per_hand);
         for p in table.players {
             let num_cards_player = u32::try_from(p.hand.cards.len()).unwrap();
             assert_eq!(num_cards_player, num_cards_per_hand);
         }
-	}
+    }
 
-	#[test]
-	fn test_get_bids_basic() {
+    #[test]
+    fn test_get_bids_basic() {
         let prize_card = 20;
         let max_card = 20;
         let hand1 = Hand{cards: vec![10,11,12]};
@@ -290,8 +290,8 @@ mod tests {
         assert_eq!(2, bid2.bidder.hand.cards.len());
     }
 
-	#[test]
-	fn test_play_round_basic() {
+    #[test]
+    fn test_play_round_basic() {
         let max_card = 12;
         let kitty = Hand{cards: vec![10,11,12]};
 
@@ -312,8 +312,8 @@ mod tests {
         assert_eq!(12, prize_card);
     }
 
-	#[test]
-	fn test_update_round_winner_basic() {
+    #[test]
+    fn test_update_round_winner_basic() {
         let p1 = Player{name: String::from("mozart"), .. Player::new()};
         let p2 = Player{name: String::from("beethoven"), .. Player::new()};
         let p3 = Player{name: String::from("chopin"), .. Player::new()};
@@ -332,8 +332,8 @@ mod tests {
         assert_eq!(12, winner.player_stats.total_for_game);
     }
 
-	#[test]
-	fn test_update_game_winner_basic() {
+    #[test]
+    fn test_update_game_winner_basic() {
         let p1 = Player{name: String::from("mozart"), .. Player::new()};
         let p2 = Player{name: String::from("beethoven"), .. Player::new()};
         let p3 = Player{name: String::from("chopin"), .. Player::new()};
@@ -352,8 +352,8 @@ mod tests {
     }
 
     // this is crazy! but comforting
-	#[test]
-	fn test_play_game_basic() {
+    #[test]
+    fn test_play_game_basic() {
         let hand1 = Hand{cards: vec![3,4,7]};
         let hand2 = Hand{cards: vec![2,5,9]};
         let hand3 = Hand{cards: vec![1,6,8]};
