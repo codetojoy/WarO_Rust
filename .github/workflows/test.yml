@@ -1,0 +1,32 @@
+
+name: unit tests 
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: get code
+        uses: actions/checkout@v3
+
+      - name: Setup | Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Build | Compile
+        run: cargo check 
+
+      - name: test
+        run: ./ct.sh
